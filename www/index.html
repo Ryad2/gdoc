@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive CRDT</title>
+
+  <link rel="stylesheet" href="./fonts.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="js-not-loaded" class="page">
+    <p>If this shows… you should probably type <code>gdocJS/fastLinkJS</code> inside <code>sbt</code>.</p>
+    <noscript>If you can read this, you have disabled JavaScript: who has disabled JavaScript nowadays?</noscript>
+  </div>
+  <div id="connect-page" class="hidden page">
+    <div class="container">
+      <h1>✨&nbsp;CS-214: <i>Our new Google Docs</i>&nbsp;✨</h1>
+      <div class="descr">
+        <p>Make sure to type the following commands inside <code>sbt</code>:</p>
+        <p>
+          <ul>
+            <li><code>gdocJS/fastLinkJS</code>: to make sure that the latest version of your code is running inside that page. Do not forget to press <b>refresh</b>.</li>
+            <li><code>gdocJVM/run</code>: to start the WebSocket server.</li>
+          </ul>
+        </p>
+        <br>
+        <p>Leave the server address field as default (should be alright for most cases.)</p>
+        <p>Pick a unique username for this session.</p>
+        <p>You can click on the dice to generate a random username.</p>
+      </div>
+      <div class="form">
+        <div class="fields">
+          <div class="field">
+            <label for="url">Server address: </label><input type="text" id="url" value="ws://localhost:8080" placeholder="Server's address">
+          </div>
+          <div class="field">
+            <label for="username">Username (<a href="javascript:void(0)" id="random">🎲</a>): </label><input type="text" id="username" placeholder="Username">
+          </div>
+        </div>
+        <div class="submitting-field">
+          <button id="connect">Connect</button>
+        </div>
+        <div id="result">
+          <p></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="app-page" class="page hidden">
+    <header>
+      <div class="left-header">
+        <div id="username-picture" class="user-picture-container">
+          <div class="user-picture">
+            <p id="username-picture"></p>
+          </div>
+        </div>
+        <div class="left-header-content">
+          <h2>iCRDT</h2>
+          <p>Logged as <span id="username-recall">…</span></p>
+        </div>
+      </div>
+      <div class="right-header">
+        <div id="connected-users"></div>
+        <button id="pause-connection">Pause connection</button>
+        <button id="disconnect">Disconnect?</button>
+      </div>
+    </header>
+    <section>
+      <textarea></textarea>
+    </section>
+  </div>
+
+  <div id="disconnected-page" class="page"><p>You have been properly disconnected!</p></div>
+
+  <script>
+    function errorLoadingJS() {
+      document.body.innerText = "Error while loading the JS file. Please compile the project with the command `gdocJS/fastLinkJS` inside SBT."
+    }
+  </script>
+
+  <script src="../js/target/scala-3.3.1/gdoc-fastopt/main.js" onerror="errorLoadingJS()"></script>
+</body>
+</html>

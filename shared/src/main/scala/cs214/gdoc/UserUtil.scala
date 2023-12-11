@@ -103,4 +103,4 @@ object UserUtil:
     def toCSS = f"hsl($hue, ${saturation * 100}%%, ${lightness * 100}%%)"
 
   def generateColorForUsername(username: String): HSLColor =
-    ???
+    HSLColor(20, .3, .4) // Fix this calculation!

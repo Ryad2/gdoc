@@ -97,7 +97,7 @@ object UserUtil:
     "Anonymous " + Random.nextInt(20)
 
   def getUsernameEmoji(username: String): String =
-    "👤"
+    animalsEmojis.getOrElse(username, defaultEmoji)
 
   case class HSLColor(hue: Int, saturation: Float, lightness: Float):
     def toCSS = f"hsl($hue, ${saturation * 100}%%, ${lightness * 100}%%)"

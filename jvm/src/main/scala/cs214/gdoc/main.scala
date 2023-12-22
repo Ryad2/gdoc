@@ -19,8 +19,10 @@ class CRDTServer(val port: Int)
     extends WebSocketServer(new InetSocketAddress("0.0.0.0", port)):
 
   private var yourVariable: String = "Initial value"
+  var clients: Map[String, (WebSocket, Int, Boolean)] = Map.empty
+  var operations: Vector[Operation] = Vector.empty
 
-  override def onStart() =
+  override def onStart () =
     println(f"Server started on port $port")
 
   override def onError(ws: WebSocket, e: Exception) = ()
@@ -47,7 +49,42 @@ class CRDTServer(val port: Int)
       messageEncoder: Encoder[Message],
       messageDecoder: Decoder[Message]
   ) =
-    ???
+    messageDecoder.decode(content) match
+      case Some(GetConnectedClients) =>
+        ws.send(messageEncoder.encode(ConnectedClients(clients.filter((_,value) => value._3).keys.toList)))
+
+      case Some(DisconnectRequest) =>
+        clients = clients.removed(clients.find(_._2._1 == ws).get._1)
+        ws.close()
+      case Some(InitialEvent(username)) =>
+        if clients.contains(username) then
+          ws.send(messageEncoder.encode(UsernameTaken))
+          ws.close()
+        else
+          ws.send(messageEncoder.encode(InitialEventOk))
+          operations.foreach(op => ws.send(messageEncoder.encode(TextOperation(op))) )
+          clients = clients.updated(username, (ws, operations.length, true))
+
+      case Some(TextOperation(op))  =>
+        operations = operations :+ op
+        clients = clients.map((username, value) =>
+          if value._3 then (username, (value._1, value._2 + 1, true))
+          else (username, value))
+
+        clients.filter((_, value) => value._3).foreach( (username, value) =>
+          value._1.send(messageEncoder.encode(TextOperation(op)))
+        )
+
+
+      case Some(ConnectedClients(clients)) =>
+      case Some(FetchMissedOperations(username)) =>
+        val missingOps = operations.slice(operations.length-clients(username)._2, operations.length)
+        clients = clients.updated(username, (clients(username)._1, operations.length, true))
+        missingOps.foreach(op => ws.send(messageEncoder.encode(TextOperation(op))))
+        
+        
+      case _ => None
+
 
 @main def main =
   val s: WebSocketServer = CRDTServer(8080)
